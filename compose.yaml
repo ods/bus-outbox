@@ -5,6 +5,7 @@ services:
       - db
     environment:
       DB_DSN: postgres://postgres:postgres@db/bus_outbox
+      BOOTSTRAP_SERVERS: kafka:9092
     command: migrate
 
   db:
@@ -15,3 +16,8 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: bus_outbox
+
+  kafka:
+    image: bitnami/kafka:3.7
+    ports:
+      - "9092"
