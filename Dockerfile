@@ -10,12 +10,12 @@ RUN --mount=type=bind,source=src,target=/build/src \
     --mount=type=cache,target=${HOME}/.cargo \
     --mount=type=cache,target=/build/target \
     cargo build --release \
-    && cp target/release/bus-producer /bus-producer
+    && cp target/release/bus-outbox /bus-outbox
 
 
 FROM scratch
 
-COPY --from=builder /bus-producer /bus-producer
+COPY --from=builder /bus-outbox /bus-outbox
 COPY migrations /migrations
 
-ENTRYPOINT [ "/bus-producer" ]
+ENTRYPOINT [ "/bus-outbox" ]

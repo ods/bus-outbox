@@ -1,5 +1,5 @@
 [package]
-name = "bus-producer"
+name = "bus-outbox"
 edition = "2021"
 
 [dependencies]

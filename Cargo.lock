@@ -151,7 +151,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "bus-producer"
+name = "bus-outbox"
 version = "0.0.0"
 dependencies = [
  "clap",

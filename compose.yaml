@@ -4,7 +4,8 @@ services:
     depends_on:
       - db
     environment:
-      DB_DSN: postgres://postgres:postgres@db/bus_producer
+      DB_DSN: postgres://postgres:postgres@db/bus_outbox
+    command: migrate
 
   db:
     image: postgres:16-alpine
@@ -13,4 +14,4 @@ services:
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: bus_producer
+      POSTGRES_DB: bus_outbox
