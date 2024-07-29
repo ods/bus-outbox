@@ -1,8 +1,8 @@
 use eyre::Context;
-use sqlx::{Connection, PgConnection};
+use sqlx::{types::Json, Connection, PgConnection};
 use tokio::time::{sleep, Duration};
 
-use crate::db_models::OutboxMessage;
+use crate::db_models::{Headers, OutboxMessage};
 
 enum StepStatus {
     QueueIsEmpty,
@@ -36,7 +36,7 @@ async fn send_next_message(db: &mut PgConnection) -> eyre::Result<StepStatus> {
     let maybe_row = sqlx::query_as!(
         OutboxMessage,
         r#"
-        SELECT id, topic, payload, key, headers
+        SELECT id, topic, payload, key, headers as "headers: Json<Headers>"
         FROM bus_outbox_messages
         ORDER BY id
         LIMIT 1
