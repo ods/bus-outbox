@@ -1,9 +1,10 @@
 use std::collections::HashMap;
 
+use derive_more::Deref;
 use serde::Deserialize;
 use sqlx::{types::Json, FromRow};
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Deref)]
 pub struct Headers(HashMap<String, Option<String>>);
 
 #[derive(Debug, FromRow)]

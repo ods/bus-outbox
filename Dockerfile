@@ -1,5 +1,5 @@
 FROM rust:1.80.0-alpine AS builder
-RUN apk add --no-cache musl-dev
+RUN apk add --no-cache musl-dev bash g++ make
 
 WORKDIR /build
 ENV CARGO_HOME=${HOME}/.cargo

@@ -4,7 +4,9 @@ edition = "2021"
 
 [dependencies]
 clap = { version = "4.5.11", features = ["derive", "env"] }
+derive_more = "0.99.18"
 eyre = "0.6.12"
+rdkafka = "0.36.2"
 serde = { version = "1.0.204", features = ["derive"] }
 sqlx = { version = "0.8.0", features = ["postgres", "runtime-tokio"] }
 tokio = { version = "1.39.2", features = ["rt-multi-thread", "macros", "signal"] }
