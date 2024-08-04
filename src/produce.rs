@@ -4,7 +4,7 @@ use rdkafka::{
     producer::{FutureProducer, FutureRecord},
 };
 use sqlx::{types::Json, Connection, PgConnection};
-use tokio::time::{sleep, Duration};
+use tokio::time::{sleep, timeout, Duration};
 
 use crate::db_models::{Headers, OutboxMessage};
 
@@ -79,10 +79,15 @@ async fn send_next_message(
         }
         record = record.headers(owned_headers);
     }
-    let delivery_status = producer
-        .send(record, Duration::from_secs(0))
-        .await
-        .map_err(|(err, _)| eyre::Error::from(err).wrap_err("Failed to send message"))?;
+    let delivery_status = timeout(
+        // Short deadline to avoid row locking for long time
+        // TODO: Make it configurable
+        Duration::from_millis(100),
+        producer.send(record, Duration::from_secs(0)),
+    )
+    .await
+    .wrap_err("Failed to send message")?
+    .map_err(|(err, _)| eyre::Error::from(err).wrap_err("Failed to send message"))?;
     dbg!(delivery_status);
 
     tnx.commit().await?;
