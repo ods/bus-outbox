@@ -1,6 +1,8 @@
 services:
   app:
-    build: .
+    build:
+      context: .
+      target: main
     depends_on:
       - db
       - kafka
@@ -8,6 +10,21 @@ services:
       DB_DSN: postgres://postgres:postgres@db/bus_outbox
       BOOTSTRAP_SERVERS: kafka:9092
     command: migrate
+
+  test:
+    build:
+      context: .
+      target: test
+    depends_on:
+      - db
+      - kafka
+    volumes:
+      - ./tests:/tests
+    working_dir: /tests
+    environment:
+      DB_DSN: postgres://postgres:postgres@db/bus_outbox
+      BOOTSTRAP_SERVERS: kafka:9092
+    command: pytest -s --tb=native -v -rsxX
 
   db:
     image: postgres:16-alpine

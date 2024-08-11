@@ -15,9 +15,24 @@ RUN --mount=type=bind,source=src,target=/build/src \
     && cp target/release/bus-outbox /bus-outbox
 
 
-FROM scratch
+FROM scratch AS main
 
 COPY --from=builder /bus-outbox /bus-outbox
 COPY migrations /migrations
 
 ENTRYPOINT [ "/bus-outbox" ]
+
+
+FROM ghcr.io/astral-sh/uv:latest AS uv
+
+
+FROM python:3.12 AS test
+
+RUN --mount=from=uv,source=/uv,target=/bin/uv \
+    --mount=type=cache,target=${HOME}/.cache \
+    uv pip install --system pytest psycopg2-binary confluent-kafka
+
+COPY --from=builder /bus-outbox /bus-outbox
+COPY migrations /migrations
+
+CMD ["pytest", "tests/"]
