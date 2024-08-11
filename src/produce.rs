@@ -22,7 +22,7 @@ pub async fn run_producer(db_dsn: &str, bootstrap_servers: &str) -> eyre::Result
 
     let producer: FutureProducer = rdkafka::ClientConfig::new()
         .set("bootstrap.servers", bootstrap_servers)
-        .set("message.timeout.ms", "1000")
+        .set("message.timeout.ms", "3000")
         .create()
         .wrap_err_with(|| format!("Failed to create producer for {}", bootstrap_servers))?;
 
@@ -32,10 +32,7 @@ pub async fn run_producer(db_dsn: &str, bootstrap_servers: &str) -> eyre::Result
                 // TODO: Configurable poll interval
                 sleep(Duration::from_secs(1)).await;
             }
-            StepStatus::MessageSent => {
-                // FIXME: temporary delay to avoid busy loop
-                sleep(Duration::from_secs(1)).await;
-            }
+            StepStatus::MessageSent => {}
         }
     }
 }
@@ -86,7 +83,9 @@ async fn send_next_message(
         .map_err(|(err, _)| eyre::Error::from(err).wrap_err("Failed to send message"))?;
     dbg!(delivery_status);
 
-    // TODO: Delete sent record from database
+    sqlx::query!("DELETE FROM bus_outbox_messages WHERE id = $1", row.id)
+        .execute(&mut *tnx)
+        .await?;
 
     tnx.commit().await?;
     Ok(StepStatus::MessageSent)
